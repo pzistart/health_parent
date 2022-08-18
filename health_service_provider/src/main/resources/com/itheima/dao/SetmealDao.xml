@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.SetmealDao">
+
+    <insert id="add">
+        insert into health.t_setmeal (name, code, helpCode, sex, age, price, remark, attention, img)
+        VALUES (#{name}, #{code}, #{helpCode},#{sex},#{age},#{price},#{remark},#{attention},#{img});
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <insert id="assSetmealAndCheckGroup">
+        insert into t_setmeal_checkgroup (setmeal_id, checkgroup_id)
+        values (#{id}, #{checkgroupId});
+    </insert>
+
+    <update id="edit">
+        update t_setmeal
+        <set>
+            <if test="name != null and name.length > 0">
+                name = #{name},
+            </if>
+            <if test="code != null and code.length > 0">
+                code = #{code},
+            </if>
+            <if test="helpCode != null and helpCode.length > 0">
+                helpCode = #{helpCode},
+            </if>
+            <if test="sex != null and sex.length > 0">
+                sex = #{sex},
+            </if>
+            <if test="age != null and age.length > 0">
+                age = #{age},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="remark != null and remark.length> 0">
+                remark = #{remark},
+            </if>
+            <if test="attention != null and attention.length> 0">
+                attention = #{attention},
+            </if>
+            <if test="img != null and img.length> 0">
+                img = #{img},
+            </if>
+        </set>
+        where id = #{id};
+    </update>
+    <delete id="deleteSetmealAssCheckgroupsBySetmealId">
+        delete
+        from t_setmeal_checkgroup
+        where setmeal_id = #{id};
+    </delete>
+    <delete id="deleteBySetmealId">
+        delete
+        from t_setmeal
+        where id = #{id};
+    </delete>
+
+    <select id="findAllCheckGroupMsg" resultType="com.itheima.pojo.CheckGroup">
+        select *
+        from t_checkgroup;
+    </select>
+
+    <select id="selectCondition" resultType="com.itheima.pojo.Setmeal">
+        select * from t_setmeal
+        <if test="queryString != null and queryString.length > 0">
+            where code like '%${queryString}%' or name like '%${queryString}%' or helpCode like '%${queryString}%'
+        </if>
+    </select>
+
+    <select id="findSetmealBySealmealId" resultType="com.itheima.pojo.Setmeal">
+        select *
+        from t_setmeal
+        where id = #{id};
+    </select>
+    <select id="findSetmealAssCheckgroupBySealmealId" resultType="java.lang.Integer">
+        select checkgroup_id
+        from t_setmeal_checkgroup
+        where setmeal_id = #{id};
+    </select>
+    <select id="findAllSetmeal" resultType="com.itheima.pojo.Setmeal">
+        select *
+        from t_setmeal
+    </select>
+
+    <resultMap id="getCheckGroupList" type="com.itheima.pojo.Setmeal">
+        <id column="id" property="id"></id>
+        <result column="name" property="name"></result>
+        <result column="code" property="code"></result>
+        <result column="helpCode" property="helpCode"></result>
+        <result column="sex" property="sex"></result>
+        <result column="age" property="age"></result>
+        <result column="price" property="price"></result>
+        <result column="remark" property="remark"></result>
+        <result column="attention" property="attention"></result>
+        <result column="img" property="img"></result>
+        <!--        将setmealId传入这个select语句中-->
+        <collection property="checkGroups"
+                    select="com.itheima.dao.CheckGroupDao.findCheckGroupWithItemBySetmealId" column="id">
+        </collection>
+    </resultMap>
+    <select id="findSetmealById" resultType="com.itheima.pojo.Setmeal" resultMap="getCheckGroupList">
+        select *
+        from health.t_setmeal
+        where id = #{setmealId};
+    </select>
+    <select id="selectNameAndCount" resultType="java.util.Map">
+        select s.name, count(*) as 'value'
+        from health.t_order o
+                 inner join health.t_setmeal s on o.setmeal_id = s.id
+        group by s.name;
+    </select>
+    <select id="selecthotSetmeal" resultType="java.util.Map">
+        select s.name,
+               count(*) as 'setmeal_count',
+                concat(count(*) / (select count(*) as totalOrder from health.t_order) ) as 'proportion'
+        from health.t_order o
+                 left join health.t_setmeal s on s.id = o.setmeal_id
+        group by o.setmeal_id
+            limit 5;
+    </select>
+
+
+</mapper>

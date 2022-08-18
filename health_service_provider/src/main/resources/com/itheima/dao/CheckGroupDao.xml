@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.CheckGroupDao">
+
+    <insert id="add">
+        insert into health.t_checkgroup(code, name, helpCode, sex, remark, attention)
+        values (#{code}, #{name}, #{helpCode}, #{sex}, #{remark}, #{attention});
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <insert id="AssgroupWithItem">
+        insert into t_checkgroup_checkitem(checkgroup_id, checkitem_id)
+        VALUES (#{groupId}, #{itemId});
+    </insert>
+
+    <update id="updateCheckGroup">
+        update t_checkgroup
+        <set>
+            <if test="code != null and code.length >0">
+                code = #{code},
+            </if>
+            <if test="name != null and name.length >0">
+                name = #{name},
+            </if>
+            <if test="helpCode != null and helpCode.length >0">
+                helpCode = #{helpCode},
+            </if>
+            <if test="sex != null and sex.length >0">
+                sex = #{sex},
+            </if>
+            <if test="remark != null and remark.length >0">
+                remark = #{remark},
+            </if>
+            <if test="attention != null and attention.length >0">
+                attention = #{attention},
+            </if>
+        </set>
+        where id = #{id};
+    </update>
+
+    <delete id="deleteAssWithGroupId">
+        delete
+        from health.t_checkgroup_checkitem
+        where checkgroup_id = #{id};
+    </delete>
+
+    <select id="findPage" resultType="com.itheima.pojo.CheckGroup">
+        select *
+        from t_checkgroup
+        <if test="queryString != null and queryString.length > 0">
+            where code like '%${queryString}%' or name like '%${queryString}%' or helpCode like '%${queryString}%'
+        </if>
+    </select>
+
+    <select id="findByGroupId" resultType="com.itheima.pojo.CheckGroup">
+        select *
+        from t_checkgroup
+        where id = #{id};
+    </select>
+
+    <select id="findGroupIdAssItemId" resultType="java.lang.Integer">
+        select checkitem_id
+        from health.t_checkgroup_checkitem
+        where checkgroup_id = #{id};
+    </select>
+    <resultMap id="groupWithItemList" type="com.itheima.pojo.CheckGroup">
+        <id column="id" property="id"></id>
+        <result column="code" property="code"></result>
+        <result column="name" property="name"></result>
+        <result column="helpCode" property="helpCode"></result>
+        <result column="sex" property="sex"></result>
+        <result column="remark" property="remark"></result>
+        <result column="attention" property="attention"></result>
+        <association property="checkItems"
+                     select="com.itheima.dao.CheckItemDao.findCheckItemListByGroupId"
+                     column="id"></association>
+    </resultMap>
+    <select id="findCheckGroupWithItemBySetmealId" resultMap="groupWithItemList">
+        select tc.*
+        from health.t_checkgroup tc
+                 left join health.t_setmeal_checkgroup tsc on tc.id = tsc.checkgroup_id
+        where setmeal_id = #{setmealId};
+    </select>
+
+</mapper>

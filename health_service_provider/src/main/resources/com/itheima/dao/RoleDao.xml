@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.RoleDao">
+
+    <resultMap id="BaseResultMap" type="com.itheima.pojo.Role">
+        <id column="id" property="id"></id>
+        <result column="name" property="name"></result>
+        <result column="keyword" property="keyword"></result>
+        <result column="description" property="description"></result>
+
+    </resultMap>
+
+    <resultMap id="getRole" type="com.itheima.pojo.Role" extends="BaseResultMap">
+        <collection property="permissions"
+                    select="com.itheima.dao.PermissionDao.selectByRoleId" column="id">
+        </collection>
+        <collection property="menus"
+                    select="com.itheima.dao.MenuDao.selectMenuByRoleId" column="id">
+        </collection>
+    </resultMap>
+
+
+
+    <select id="selectByUserName" resultMap="getRole">
+        select r.*
+        from health.t_role r
+                 left join health.t_user_role ur on r.id = ur.role_id
+                 left join health.t_user u on ur.user_id = u.id
+        where u.username = #{userName};
+    </select>
+
+</mapper>

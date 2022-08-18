@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.CheckItemDao">
+    <!--新增-->
+    <update id="updateCheckItem">
+        update t_checkitem
+        <set>
+            <if test="code != null and code.length > 0">
+                code = #{code},
+            </if>
+            <if test="name != null and name.length > 0">
+                name = #{name},
+            </if>
+            <if test="sex != null and sex.length > 0">
+                sex = #{sex},
+            </if>
+            <if test="age != null and age.length > 0">
+                age = #{age},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="type != null and type.length > 0">
+                type = #{type},
+            </if>
+            <if test="attention != null and attention.length > 0">
+                attention = #{attention},
+            </if>
+            <if test="remark != null and remark.length > 0">
+                remark = #{remark}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="add" parameterType="com.itheima.pojo.CheckItem">
+        insert into t_checkitem(code, name, sex, age, price, type, remark, attention)
+        values (#{code}, #{name}, #{sex}, #{age}, #{price}, #{type}, #{remark}, #{attention})
+    </insert>
+
+    <!--    删除-->
+    <delete id="deleteCheckItemById">
+        DELETE
+        from t_checkitem
+        where id = #{id}
+    </delete>
+
+    <!--    分页查询-->
+    <select id="findPage" resultType="com.itheima.pojo.CheckItem" parameterType="string">
+        select *
+        from t_checkitem
+        <if test="queryString != null and queryString.length > 0">
+            where code like #{queryString} or name like #{queryString}
+        </if>
+    </select>
+    <select id="selectCheckGroupIdByCheckItemId" resultType="java.lang.Integer">
+        select count(*)
+        from t_checkgroup_checkitem
+        where checkitem_id = #{id};
+    </select>
+
+    <select id="selectCheckItemById" resultType="com.itheima.pojo.CheckItem">
+        select *
+        from t_checkitem
+        where id = #{id};
+    </select>
+
+    <select id="findAll" resultType="com.itheima.pojo.CheckItem">
+        select *
+        from t_checkitem;
+    </select>
+    <select id="findCheckItemListByGroupId" resultType="com.itheima.pojo.CheckItem">
+        select tci.*
+        from health.t_checkitem tci
+                 left join health.t_checkgroup_checkitem tcc on tci.id = tcc.checkitem_id
+        where checkgroup_id = #{groupId};
+    </select>
+
+
+</mapper>

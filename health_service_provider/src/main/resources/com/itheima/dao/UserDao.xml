@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.UserDao">
+
+    <resultMap id="getUser" type="com.itheima.pojo.User">
+        <id column="id" property="id"></id>
+        <result column="birthday" property="birthday"></result>
+        <result column="gender" property="gender"></result>
+        <result column="username" property="username"></result>
+        <result column="password" property="password"></result>
+        <result column="remark" property="remark"></result>
+        <result column="station" property="station"></result>
+        <result column="telephone" property="telephone"></result>
+        <!--        一个用户可能对应多个角色，在分步查询的时候，
+        会把每个角色所对应的权限、菜单都赋值到位-->
+        <collection property="roles"
+                    select="com.itheima.dao.RoleDao.selectByUserName" column="username">
+        </collection>
+    </resultMap>
+
+    <select id="selectByName" resultMap="getUser">
+        select *
+        from health.t_user
+        where username = #{username};
+    </select>
+</mapper>

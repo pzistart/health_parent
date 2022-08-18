@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.OrderDao">
+
+    <insert id="insert">
+        insert into health.t_order (member_id, orderDate, orderType, orderStatus, setmeal_id)
+        VALUES (#{map.memberId}, #{map.orderDate}, #{map.orderType}, #{map.orderStatus}, #{map.setmealId})
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+    <insert id="add">
+        insert into health.t_order (member_id, orderDate, orderType, orderStatus, setmeal_id)
+        VALUES (#{memberId},#{orderDate},#{orderType},#{orderStatus},#{setmealId})
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <select id="selectByDateAndMemberId" resultType="com.itheima.pojo.Order">
+        select *
+        from health.t_order
+        where orderDate = #{orderDate}
+          and member_id = #{memberId};
+    </select>
+
+    <select id="selectByCondition" resultType="com.itheima.pojo.Order">
+        select *
+        from health.t_order
+        <where>
+            <if test="orderDate != null">
+                orderDate = #{orderDate}
+            </if>
+            <if test="memberId != null">
+                and member_id = #{memberId}
+            </if>
+
+            <if test="orderType != null and orderType.lenth > 0">
+                and orderType = #{orderType}
+            </if>
+            <if test="orderStatus != null and orderStatus.lenth > 0">
+                and orderStatus = #{orderStatus}
+            </if>
+            <if test="setmealId != null">
+                and setmeal_id = #{setmealId}
+            </if>
+        </where>
+    </select>
+    <select id="selectById" resultType="com.itheima.pojo.Order">
+        select *
+        from health.t_order
+        where id = #{id};
+    </select>
+    <select id="select4DetailsById" resultType="java.util.Map">
+        select s.name as 'setmeal', m.name as 'member', o.orderDate as 'orderDate', o.orderType as 'orderType'
+        from health.t_order o
+                 left join health.t_setmeal s on o.setmeal_id = s.id
+                 left join health.t_member m on m.id = o.member_id
+        where o.id = #{id};
+    </select>
+    <select id="selectOrderBySetmealId" resultType="Integer">
+        select count(*)
+        from health.t_order
+        where setmeal_id = #{id};
+    </select>
+    <select id="selectTodayOrderCount" resultType="java.lang.Integer">
+        select count(*)
+        from health.t_order
+        where orderDate = #{today};
+    </select>
+    <select id="selectTodayVisitCount" resultType="java.lang.Integer">
+        select count(*)
+        from health.t_order
+        where orderDate = #{today}
+          and orderStatus = '已到诊';
+    </select>
+    <select id="select1WeekOrderCount" resultType="java.lang.Integer">
+        select count(*)
+        from health.t_order
+        where orderDate between #{todayBefore7} and #{today};
+    </select>
+    <select id="select1MonthOrderCount" resultType="java.lang.Integer">
+        select count(*)
+        from health.t_order
+        where year (orderDate) = #{year}
+          and month (orderDate) = #{month};
+    </select>
+    <select id="select1MonthVisttCount" resultType="java.lang.Integer">
+        select count(*)
+        from health.t_order
+        where year (orderDate) = #{year}
+          and month (orderDate) = #{month}
+          and orderStatus = '已到诊';
+    </select>
+    <select id="selectWeekVisitCount" resultType="java.lang.Integer">
+        select count(*)
+        from health.t_order
+        where orderDate between #{todayBefore7} and #{today}
+          and orderStatus = '已到诊';
+    </select>
+
+</mapper>

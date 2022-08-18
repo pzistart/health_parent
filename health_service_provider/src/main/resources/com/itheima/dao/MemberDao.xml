@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.MemberDao">
+    <insert id="add">
+        insert into health.t_member (fileNumber, name, sex, idCard, phoneNumber, regTime, password, email, birthday,
+        remark)
+        VALUES
+        (#{fileNumber},#{name},#{sex},#{idCard},#{phoneNumber},#{regTime},#{password},#{email},#{birthday},#{remark});
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <select id="selectByIdCard" resultType="com.itheima.pojo.Member">
+        select *
+        from health.t_member
+        where idCard = #{idCard};
+    </select>
+    <select id="selectByIdCardAndTelephone" resultType="com.itheima.pojo.Member">
+        select *
+        from health.t_member
+        where idCard = #{idCard}
+          and phoneNumber = #{telephone};
+    </select>
+    <select id="selectByTelephone" resultType="com.itheima.pojo.Member">
+        select *
+        from health.t_member
+        where phoneNumber = #{telephone};
+    </select>
+    <select id="selectById" resultType="com.itheima.pojo.Member">
+        select *
+        from health.t_member
+        where id = #{id};
+    </select>
+    <select id="selectTodayAddByDate" resultType="java.lang.Integer">
+        select count(*)
+        from health.t_member
+        where regTime = #{reportDate};
+    </select>
+    <select id="selectAll" resultType="com.itheima.pojo.Member">
+        select *
+        from health.t_member;
+    </select>
+
+    <select id="select1WeekAddCount" resultType="java.lang.Integer">
+        select count(*)
+        from health.t_member
+        where regTime between #{todayBefore7} and #{today};
+    </select>
+
+    <select id="select1MonthAddCount" resultType="java.lang.Integer">
+        select count(*)
+        from health.t_member
+        where year (regTime) = #{year}
+          and month (regTime) = #{month};
+    </select>
+</mapper>
